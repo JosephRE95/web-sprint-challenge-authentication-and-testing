@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
       next();
     } catch (e) {
       console.log(e)
-      res.send("token invalid");
+      res.status(401).send("token invalid");
     }
   }
 };

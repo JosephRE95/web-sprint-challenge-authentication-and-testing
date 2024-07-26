@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
   } else {
     const user = await db('users').select('*').where({ username }).first();
     if (!user || !bcrypt.compareSync(password, user.password)) {
-      return res.status(401).json({ error: 'Incorrect credentials' });
+      return res.status(401).send('invalid credentials');
     }
     const token = generateToken(user);
     res.send({message: `welcome back ${username}`, token});

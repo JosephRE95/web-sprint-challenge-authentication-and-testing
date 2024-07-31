@@ -3,17 +3,33 @@ const db = require('../../data/dbConfig');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+function findByUsername(username) {
+  return db('users').where({ username }).first();
+}
+function add(user) {
+  return db('users').insert(user).then(([id]) => ({ id, ...user }));
+}
+
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json('Username and password required');
   }
-
+  
+  
   try {
+
+    const user = await findByUsername(username);
+    if (user) {
+      return res.status(409).json({ message: 'username taken' });
+    }
+
     const hash = bcrypt.hashSync(password, 4);
-    const response = await db('users').insert({ username, password: hash });
-    const id = response[0];
-    const user = await db('users').select('*').where({ id }).first();
+    const newUser = await add({ username, password: hash });
+    // const response = await db('users').insert({ username, password: hash });
+    // const id = response[0];
+    // const user = await db('users').select('*').where({ id }).first();
+    res.status(201).json(newUser)
 
     if (!user) {
       return res.status(400).json('There is no user with this username');

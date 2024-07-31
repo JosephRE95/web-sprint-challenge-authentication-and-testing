@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).send('You need a username and password to register');
+    return res.status(400).send('Username and password required');
   }
 
   try {

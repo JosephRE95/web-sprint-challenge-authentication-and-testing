@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).send('Username and password required');
+    return res.status(400).json('Username and password required');
   }
 
   try {
@@ -16,26 +16,26 @@ router.post('/register', async (req, res) => {
     const user = await db('users').select('*').where({ id }).first();
 
     if (!user) {
-      return res.status(400).send('There is no user with this username');
+      return res.status(400).json('There is no user with this username');
     } else {
-      return res.send(user);
+      return res.json(user);
     }
   } catch (error) {
-    return res.status(500).send('Error registering the user');
+    return res.status(500).json('Error registering the user');
   }
 });
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-  return res.status(400).send('username and password required');
+  return res.status(400).json('username and password required');
   } else {
     const user = await db('users').select('*').where({ username }).first();
     if (!user || !bcrypt.compareSync(password, user.password)) {
-      return res.status(401).send('invalid credentials');
+      return res.status(401).json('invalid credentials');
     }
     const token = generateToken(user);
-   return res.status(200).send({message: `welcome back ${username}`, token});
+   return res.status(200).json({message: `welcome back ${username}`, token});
    
   }
 

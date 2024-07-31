@@ -35,7 +35,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).send('invalid credentials');
     }
     const token = generateToken(user);
-    res.send({message: `welcome back ${username}`, token});
+    res.status(200).send({message: `welcome back ${username}`, token});
    
   }
 

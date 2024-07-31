@@ -2,6 +2,10 @@ const router = require('express').Router();
 const db = require('../../data/dbConfig');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const secret = process.env.SECRET_KEY || 'shh';
+
+
+
 
 // Helper functions
 function findByUsername(username) {
@@ -38,34 +42,22 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).json('Username and password required');
+    return res.status(400).json({ message: 'username and password required' });
   }
-
   try {
     const user = await findByUsername(username);
-    if (!user || !bcrypt.compareSync(password, user.password)) {
-      return res.status(401).json('Invalid credentials');
+    if (!user) {
+      return res.status(401).json({ message: 'invalid credentials' });
     }
-
-    const token = generateToken(user);
-    return res.status(200).json({ message: `Welcome back ${username}`, token });
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'invalid credentials' });
+    }
+    const token = jwt.sign({ userId: user.id, username },  secret, { expiresIn: '1h' }); // 1st arg data, 2nd secret, 3rd expire
+    res.json({ message: `welcome, ${username}`, token });
   } catch (error) {
-    return res.status(500).json('Error logging in');
+    res.status(500).json({ message: 'Error logging in', error });
   }
 });
-
-// Token generation function
-function generateToken(user) {
-  const payload = {
-    subject: user.id, // sub in payload is what the token is about
-    username: user.username,
-  };
-
-  const options = {
-    expiresIn: '1d', // show other available options in the library's documentation
-  };
-
-  return jwt.sign(payload, process.env.JWT_SECRET, options); // this method is synchronous
-}
 
 module.exports = router;

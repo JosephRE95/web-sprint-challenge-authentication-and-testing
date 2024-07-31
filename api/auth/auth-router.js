@@ -28,14 +28,14 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-   res.status(400).send('username and password required');
+  return res.status(400).send('username and password required');
   } else {
     const user = await db('users').select('*').where({ username }).first();
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).send('invalid credentials');
     }
     const token = generateToken(user);
-    res.status(200).send({message: `welcome back ${username}`, token});
+   return res.status(200).send({message: `welcome back ${username}`, token});
    
   }
 

@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-   res.status(400).send('You need a username and password');
+   res.status(400).send('username and password required');
   } else {
     const user = await db('users').select('*').where({ username }).first();
     if (!user || !bcrypt.compareSync(password, user.password)) {
